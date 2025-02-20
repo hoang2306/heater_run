@@ -14,7 +14,8 @@ import pickle
 import scipy.sparse
 
 np.random.seed(0)
-tf.set_random_seed(0)
+# tf.set_random_seed(0) 
+tf.random.set_seed(0)
 
 
 def main():
