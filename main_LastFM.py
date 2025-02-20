@@ -59,7 +59,9 @@ def main():
                           model_select=model_select,
                           rank_out=rank_out, reg=args.reg, alpha=args.alpha, dim=args.dim)
 
-    config = tf.ConfigProto(allow_soft_placement=True)
+    # config = tf.ConfigProto(allow_soft_placement=True) # old version
+    config = tf.compat.v1.ConfigProto(allow_soft_placement=True)
+
 
     heater.build_model()
     heater.build_predictor(recall_at)
