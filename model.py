@@ -32,7 +32,8 @@ def dense_batch_fc_tanh(x, units, is_training, scope, do_norm=False):
     # Sử dụng tf.name_scope thay cho tf.variable_scope
     with tf.name_scope(scope):
         # Khởi tạo trọng số và bias
-        init = tf.random.truncated_normal_initializer(stddev=0.01)
+        # init = tf.random.truncated_normal_initializer(stddev=0.01)
+        init = tf.keras.initializers.TruncatedNormal(stddev=0.01)
         h1_w = tf.Variable(init([x.shape[1], units]), name=scope + '_w')
         h1_b = tf.Variable(tf.zeros([units]), name=scope + '_b')
 
@@ -66,7 +67,7 @@ def dense_fc(x, units, scope):
     # Sử dụng tf.Variable thay cho tf.get_variable và tf.variable_scope
     with tf.name_scope(scope):
         # Khởi tạo trọng số và bias
-        init = tf.random.truncated_normal_initializer(stddev=0.01)
+        init = tf.keras.initializers.TruncatedNormal(stddev=0.01)   
         h1_w = tf.Variable(init([x.shape[1], units]), name=scope + '_w')
         h1_b = tf.Variable(tf.zeros([units]), name=scope + '_b')
 
