@@ -6,39 +6,74 @@ def l2_norm(para):
     return tf.reduce_sum(tf.square(para))
 
 
-def dense_batch_fc_tanh(x, units, is_training, scope, do_norm=False):
-    with tf.variable_scope(scope):
-        init = tf.truncated_normal_initializer(stddev=0.01)
-        h1_w = tf.get_variable(scope + '_w',
-                               shape=[x.get_shape().as_list()[1], units],
-                               initializer=init)
-        h1_b = tf.get_variable(scope + '_b',
-                               shape=[1, units],
-                               initializer=tf.zeros_initializer())
-        h1 = tf.matmul(x, h1_w) + h1_b
-        if do_norm:
-            h2 = tf.contrib.layers.batch_norm(
-                h1,
-                decay=0.9,
-                center=True,
-                scale=True,
-                is_training=is_training,
-                scope=scope + '_bn')
-            return tf.nn.tanh(h2, scope + '_tanh'), l2_norm(h1_w) + l2_norm(h1_b)
-        else:
-            return tf.nn.tanh(h1, scope + '_tanh'), l2_norm(h1_w) + l2_norm(h1_b)
+# def dense_batch_fc_tanh(x, units, is_training, scope, do_norm=False):
+#     with tf.variable_scope(scope):
+#         init = tf.truncated_normal_initializer(stddev=0.01)
+#         h1_w = tf.get_variable(scope + '_w',
+#                                shape=[x.get_shape().as_list()[1], units],
+#                                initializer=init)
+#         h1_b = tf.get_variable(scope + '_b',
+#                                shape=[1, units],
+#                                initializer=tf.zeros_initializer())
+#         h1 = tf.matmul(x, h1_w) + h1_b
+#         if do_norm:
+#             h2 = tf.contrib.layers.batch_norm(
+#                 h1,
+#                 decay=0.9,
+#                 center=True,
+#                 scale=True,
+#                 is_training=is_training,
+#                 scope=scope + '_bn')
+#             return tf.nn.tanh(h2, scope + '_tanh'), l2_norm(h1_w) + l2_norm(h1_b)
+#         else:
+#             return tf.nn.tanh(h1, scope + '_tanh'), l2_norm(h1_w) + l2_norm(h1_b)
 
+def dense_batch_fc_tanh(x, units, is_training, scope, do_norm=False):
+    # Sử dụng tf.name_scope thay cho tf.variable_scope
+    with tf.name_scope(scope):
+        # Khởi tạo trọng số và bias
+        init = tf.random.truncated_normal_initializer(stddev=0.01)
+        h1_w = tf.Variable(init([x.shape[1], units]), name=scope + '_w')
+        h1_b = tf.Variable(tf.zeros([units]), name=scope + '_b')
+
+        # Tính toán lớp fully connected
+        h1 = tf.matmul(x, h1_w) + h1_b
+
+        # Nếu cần batch normalization
+        if do_norm:
+            # Sử dụng tf.keras.layers.BatchNormalization thay vì tf.contrib.layers.batch_norm
+            batch_norm = tf.keras.layers.BatchNormalization(
+                momentum=0.9, axis=-1, name=scope + '_bn')
+            h2 = batch_norm(h1, training=is_training)
+            return tf.nn.tanh(h2, name=scope + '_tanh'), l2_norm(h1_w) + l2_norm(h1_b)
+        else:
+            return tf.nn.tanh(h1, name=scope + '_tanh'), l2_norm(h1_w) + l2_norm(h1_b)
+
+
+# def dense_fc(x, units, scope):
+#     with tf.variable_scope(scope):
+#         init = tf.truncated_normal_initializer(stddev=0.01)
+#         h1_w = tf.get_variable(scope + '_w',
+#                                shape=[x.get_shape().as_list()[1], units],
+#                                initializer=init)
+#         h1_b = tf.get_variable(scope + '_b',
+#                                shape=[1, units],
+#                                initializer=tf.zeros_initializer())
+#         h1 = tf.matmul(x, h1_w) + h1_b
+#         return h1, l2_norm(h1_w) + l2_norm(h1_b)
 
 def dense_fc(x, units, scope):
-    with tf.variable_scope(scope):
-        init = tf.truncated_normal_initializer(stddev=0.01)
-        h1_w = tf.get_variable(scope + '_w',
-                               shape=[x.get_shape().as_list()[1], units],
-                               initializer=init)
-        h1_b = tf.get_variable(scope + '_b',
-                               shape=[1, units],
-                               initializer=tf.zeros_initializer())
+    # Sử dụng tf.Variable thay cho tf.get_variable và tf.variable_scope
+    with tf.name_scope(scope):
+        # Khởi tạo trọng số và bias
+        init = tf.random.truncated_normal_initializer(stddev=0.01)
+        h1_w = tf.Variable(init([x.shape[1], units]), name=scope + '_w')
+        h1_b = tf.Variable(tf.zeros([units]), name=scope + '_b')
+
+        # Tính toán lớp fully connected
         h1 = tf.matmul(x, h1_w) + h1_b
+
+        # Trả về kết quả và regularization loss (l2_norm)
         return h1, l2_norm(h1_w) + l2_norm(h1_b)
 
 
